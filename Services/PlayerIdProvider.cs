@@ -3,16 +3,16 @@ using MP_WORDLE_SERVER_V2.Data;
 
 namespace MP_WORDLE_SERVER_V2.Services
 {
-    public class PlayerIdProvider
+    public class PlayerService
     {
         readonly private GameDb _DbContext;
         private int AvailableId = 0;
-        public PlayerIdProvider(GameDb dbContext)
+        public PlayerService(GameDb dbContext)
         {
             _DbContext = dbContext;
         }
 
-        public async Task InitProvider()
+        public async Task InitPlayerService()
         {
             var lastPlayer = await _DbContext.Players
                 .OrderByDescending(player => player.Id)
@@ -21,7 +21,7 @@ namespace MP_WORDLE_SERVER_V2.Services
             AvailableId = lastPlayer.Id;
         }
 
-        public int GetNewId()
+        private int GetNewId()
         {
             return AvailableId++;
         }
