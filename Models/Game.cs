@@ -2,11 +2,15 @@ using System.Collections.ObjectModel;
 
 namespace MP_WORDLE_SERVER_V2.Models
 {
-    public class Game(int gameId)
+    public class Game
     {
+        public Game(int Id)
+        {
+            this.Id = Id;
+        }
         readonly private static int MaxPlayers = 5;
-        public int Id { get; set; } = gameId;
-        public DateTime CreatedAt { get; } = DateTime.UtcNow;
+        public int Id { get; set; } = 0;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         readonly private List<Player> players = [];
 
         public ReadOnlyCollection<Player> GetAllPlayers()
