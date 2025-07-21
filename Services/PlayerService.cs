@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using MP_WORDLE_SERVER_V2.Data;
 using System.Text;
+using MP_WORDLE_SERVER_V2.Models;
 
 namespace MP_WORDLE_SERVER_V2.Services
 {
@@ -30,15 +31,15 @@ namespace MP_WORDLE_SERVER_V2.Services
             return AvailableId++;
         }
 
-        public string GenerateJwtToken(string username)
+        public string GenerateJwtToken(Player player)
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(JwtRegisteredClaimNames.Sub, player.Username),
                 new Claim(JwtRegisteredClaimNames.Jti, GetNewId().ToString())
             };
 
-            var jwt_key = Environment.GetEnvironmentVariable("JWT_KEY") ?? "no_key";
+            var jwt_key = Environment.GetEnvironmentVariable("JWT_KEY") ?? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"; // Just doing a's since the key need to be a minimum of 128 bits
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt_key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -46,7 +47,7 @@ namespace MP_WORDLE_SERVER_V2.Services
                 issuer: "MpWordle.com",
                 audience: "MpWordle.com",
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.UtcNow.AddMinutes(30),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

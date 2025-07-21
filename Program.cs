@@ -3,20 +3,23 @@ using MP_WORDLE_SERVER_V2.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MP_WORDLE_SERVER_V2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddControllers();
 
 var connectionString = builder.Configuration.GetConnectionString("Game") ?? "Data Source=Game.db";
 builder.Services.AddSqlite<GameDb>(connectionString);
 builder.Services.AddOpenApi();
-var jwt_key = Environment.GetEnvironmentVariable("JWT_KEY") ?? "no_key";
+
+var jwt_key = Environment.GetEnvironmentVariable("JWT_KEY") ?? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = "MpWordle.com",
@@ -24,8 +27,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt_key))
         };
     });
-builder.Services.AddAuthorization();
-var app = builder.Build();
 
+builder.Services.AddScoped<GameDb>();
+builder.Services.AddScoped<PlayerService>();
+
+builder.Services.AddAuthorization();
+
+var app = builder.Build();
 app.UseHttpsRedirection();
+app.MapControllers();
 app.Run();
