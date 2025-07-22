@@ -12,7 +12,7 @@ var connectionString = builder.Configuration.GetConnectionString("Game") ?? "Dat
 builder.Services.AddSqlite<GameDb>(connectionString);
 builder.Services.AddOpenApi();
 
-var jwt_key = Environment.GetEnvironmentVariable("JWT_KEY") ?? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+var jwt_key = Environment.GetEnvironmentVariable("JWT_KEY") ?? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"; // 256 bits
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -25,6 +25,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = "MpWordle.com",
             ValidAudience = "MpWordle.com",
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt_key))
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (string.IsNullOrEmpty(context.Token))
+                {
+                    context.Token = context.Request.Cookies["jwt_token"];
+                }
+                return Task.CompletedTask;
+            }
         };
     });
 
