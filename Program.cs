@@ -7,12 +7,13 @@ using MP_WORDLE_SERVER_V2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
+builder.Services.AddDbContextFactory<GameDb>();
 
 var connectionString = builder.Configuration.GetConnectionString("Game") ?? "Data Source=Game.db";
 builder.Services.AddSqlite<GameDb>(connectionString);
 builder.Services.AddOpenApi();
 
-var jwt_key = Environment.GetEnvironmentVariable("JWT_KEY") ?? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"; // 256 bits
+var jwt_key = Environment.GetEnvironmentVariable("JWT_KEY") ?? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -34,13 +35,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 {
                     context.Token = context.Request.Cookies["jwt_token"];
                 }
-                return Task.CompletedTask;
+                return Task.CompletedTask;  
             }
         };
     });
 
 builder.Services.AddScoped<GameDb>();
 builder.Services.AddScoped<PlayerService>();
+builder.Services.AddSingleton<GameService>();
 
 builder.Services.AddAuthorization();
 

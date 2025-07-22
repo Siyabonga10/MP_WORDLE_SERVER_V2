@@ -3,25 +3,26 @@ using MP_WORDLE_SERVER_V2.Data;
 
 namespace MP_WORDLE_SERVER_V2.Services
 {
-    public class GameIdProvider
+    public class GameService
     {
-        readonly private GameDb _DbContext;
+        readonly private IDbContextFactory<GameDb> _DbContextFactory;
         private int AvailableId = 0;
-        public GameIdProvider(GameDb dbContext)
+        public GameService(IDbContextFactory<GameDb> dBCtxFactory)
         {
-            _DbContext = dbContext;
+            _DbContextFactory = dBCtxFactory;
         }
 
         public async Task InitProvider()
         {
-            var lastGame = await _DbContext.Games
+            var dbContext = _DbContextFactory.CreateDbContext();
+            var lastGame = await dbContext.Games
                 .OrderByDescending(g => g.Id)
                 .FirstAsync();
             if (lastGame == null) return;
             AvailableId = lastGame.Id;
         }
 
-        public int GetNewId()
+        private int GetNewId()
         {
             return AvailableId++;
         }
