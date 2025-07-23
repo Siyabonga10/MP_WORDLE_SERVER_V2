@@ -5,11 +5,13 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MP_WORDLE_SERVER_V2.Services;
 
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContextFactory<GameDb>();
 
+var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Game") ?? "Data Source=Game.db";
-builder.Services.AddSqlite<GameDb>(connectionString);
+builder.Services.AddDbContextFactory<GameDb>(
+    options => options.UseSqlite(connectionString)
+);
+
 builder.Services.AddOpenApi();
 
 var jwt_key = Environment.GetEnvironmentVariable("JWT_KEY") ?? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
@@ -40,7 +42,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<GameDb>();
 builder.Services.AddScoped<PlayerService>();
 builder.Services.AddSingleton<GameService>();
 
