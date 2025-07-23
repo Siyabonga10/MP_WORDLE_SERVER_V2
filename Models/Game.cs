@@ -14,6 +14,8 @@ namespace MP_WORDLE_SERVER_V2.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         readonly private List<Player> players = [];
         public GameState State { get; set; } = GameState.WAITING_FOR_PLAYERS;
+        public Guid? HostId { get; set; } = Guid.Empty;
+        public Guid? WinnerID { get; set; } = Guid.Empty;
 
         public ReadOnlyCollection<Player> GetAllPlayers()
         {
