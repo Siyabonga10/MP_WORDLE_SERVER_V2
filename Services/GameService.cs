@@ -10,10 +10,6 @@ namespace MP_WORDLE_SERVER_V2.Services
         {
             _DbContextFactory = dBCtxFactory;
         }
-
-        private Guid GetNewId()
-        {
-            return Guid.NewGuid();
-        }
+        
     }
 }

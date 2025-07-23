@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 
 namespace MP_WORDLE_SERVER_V2.Models
 {
+    public enum GameState {WAITING_FOR_PLAYERS, ON_GOING, PROCESSING_RESULTS, COMPLETE}
     public class Game
     {
         public Game(Guid Id)
@@ -12,6 +13,7 @@ namespace MP_WORDLE_SERVER_V2.Models
         public Guid Id { get; set; } = Guid.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         readonly private List<Player> players = [];
+        public GameState State { get; set; } = GameState.WAITING_FOR_PLAYERS;
 
         public ReadOnlyCollection<Player> GetAllPlayers()
         {
