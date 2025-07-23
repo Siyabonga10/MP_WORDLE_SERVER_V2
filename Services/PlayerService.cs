@@ -5,38 +5,23 @@ using Microsoft.IdentityModel.Tokens;
 using MP_WORDLE_SERVER_V2.Data;
 using System.Text;
 using MP_WORDLE_SERVER_V2.Models;
+using Microsoft.Identity.Client;
 
 namespace MP_WORDLE_SERVER_V2.Services
 {
     public class PlayerService
     {
-        readonly private GameDb _DbContext;
-        private int AvailableId = 0;
-        public PlayerService(GameDb dbContext)
+        private readonly IServiceScopeFactory _scopeFactory;
+        public PlayerService(IServiceScopeFactory scopeFactory)
         {
-            _DbContext = dbContext;
+            _scopeFactory = scopeFactory;
         }
-
-        public async Task InitPlayerService()
-        {
-            var lastPlayer = await _DbContext.Players
-                .OrderByDescending(player => player.Id)
-                .FirstAsync();
-            if (lastPlayer == null) return;
-            AvailableId = lastPlayer.Id;
-        }
-
-        private int GetNewId()
-        {
-            return AvailableId++;
-        }
-
         public string GenerateJwtToken(Player player)
         {
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, player.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, GetNewId().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             var jwt_key = Environment.GetEnvironmentVariable("JWT_KEY") ?? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"; // Just doing a's since the key need to be a minimum of 128 bits

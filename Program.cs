@@ -6,7 +6,6 @@ using System.Text;
 using MP_WORDLE_SERVER_V2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
 builder.Services.AddDbContextFactory<GameDb>();
 
 var connectionString = builder.Configuration.GetConnectionString("Game") ?? "Data Source=Game.db";
@@ -39,14 +38,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
+builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<GameDb>();
 builder.Services.AddScoped<PlayerService>();
 builder.Services.AddSingleton<GameService>();
 
-builder.Services.AddAuthorization();
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
+
 app.UseHttpsRedirection();
 app.MapControllers();
+
 app.Run();

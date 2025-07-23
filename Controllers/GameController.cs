@@ -10,6 +10,5 @@ namespace MP_WORDLE_SERVER_V2.Controllers
     public class GameController(GameService GameService) : ControllerBase
     {
         private readonly GameService _GameService = GameService;
-        
     }
 }
