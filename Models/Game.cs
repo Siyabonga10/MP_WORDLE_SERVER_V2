@@ -4,12 +4,12 @@ namespace MP_WORDLE_SERVER_V2.Models
 {
     public class Game
     {
-        public Game(int Id)
+        public Game(Guid Id)
         {
             this.Id = Id;
         }
         readonly private static int MaxPlayers = 5;
-        public int Id { get; set; } = 0;
+        public Guid Id { get; set; } = Guid.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         readonly private List<Player> players = [];
 
@@ -26,7 +26,7 @@ namespace MP_WORDLE_SERVER_V2.Models
             players.Add(newPlayer);
             return true;
         }
-        public bool RemovePlayer(int playerId)
+        public bool RemovePlayer(Guid playerId)
         {
             var targetPlayer = players.Find(player => player.Id == playerId);
             if (targetPlayer == null) return false;

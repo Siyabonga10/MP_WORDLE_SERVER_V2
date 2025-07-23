@@ -11,17 +11,18 @@ namespace MP_WORDLE_SERVER_V2.Services
 {
     public class PlayerService
     {
-        private readonly IServiceScopeFactory _scopeFactory;
-        public PlayerService(IServiceScopeFactory scopeFactory)
+        private readonly GameDb _DbContext;
+        public PlayerService(GameDb DbContext)
         {
-            _scopeFactory = scopeFactory;
+            _DbContext = DbContext;
         }
-        public string GenerateJwtToken(Player player)
+        public async Task<string> GenerateJwtTokenAsync(Player player) // For testing purposes, I'll just assume that this is where the player is also being created, no validation yet !!!
         {
+            player.Id = Guid.NewGuid();
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, player.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, player.Id.ToString())
             };
 
             var jwt_key = Environment.GetEnvironmentVariable("JWT_KEY") ?? "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"; // Just doing a's since the key need to be a minimum of 128 bits
@@ -34,6 +35,9 @@ namespace MP_WORDLE_SERVER_V2.Services
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(30),
                 signingCredentials: creds);
+
+            await _DbContext.Players.AddAsync(player);
+            await _DbContext.SaveChangesAsync();
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

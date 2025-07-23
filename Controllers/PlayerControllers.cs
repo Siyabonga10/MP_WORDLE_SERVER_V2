@@ -17,9 +17,9 @@ namespace MP_WORDLE_SERVER_V2.Controllers
         }
 
         [HttpPost]
-        public IActionResult AuthenticatePlayer([FromBody] Player player)
+        public async Task<IActionResult> AuthenticatePlayerAsync([FromBody] Player player)
         {
-            var token = _playerService.GenerateJwtToken(player);
+            var token = await _playerService.GenerateJwtTokenAsync(player);
 
             Response.Cookies.Append("jwt_token", token, new CookieOptions
             {
