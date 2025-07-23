@@ -21,7 +21,7 @@ namespace MP_WORDLE_SERVER_V2.Services
             return newGame;
         }
 
-        public async Task<bool> AddPlayerToGameAsync(string gameId, string playerId)
+        public async Task<bool> AddPlayerToGameAsync(string gameId, string playerId, bool ishost)
         {
             Guid gameGUID = new(gameId);
             Guid playerGUID = new(playerId);
@@ -34,9 +34,27 @@ namespace MP_WORDLE_SERVER_V2.Services
                 return false;
 
             if (targetGame.State == GameState.WAITING_FOR_PLAYERS)
+            {
                 targetGame.AddPlayer(targetPlayer);
+                var gamePlayerJunction = new GamePlayerJunction()
+                {
+                    GameId = gameGUID,
+                    PlayerId = playerGUID,
+                    Game = targetGame,
+                    Player = targetPlayer
+                };
+                await dbCtx.GamePlayerJunctions.AddAsync(gamePlayerJunction);
+            }
             else
                 return false;
+
+            if (ishost)
+            {
+                targetGame.HostId = targetPlayer.Id;
+                dbCtx.Games.Update(targetGame);
+            }
+
+            await dbCtx.SaveChangesAsync();
 
             return true;
         }
