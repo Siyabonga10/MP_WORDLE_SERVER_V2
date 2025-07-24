@@ -35,7 +35,8 @@ namespace MP_WORDLE_SERVER_V2.Services
 
             if (targetGame.State == GameState.WAITING_FOR_PLAYERS)
             {
-                targetGame.AddPlayer(targetPlayer);
+                var playerAdded = targetGame.AddPlayer(targetPlayer);
+                if (!playerAdded) return false;
                 var gamePlayerJunction = new GamePlayerJunction()
                 {
                     GameId = gameGUID,

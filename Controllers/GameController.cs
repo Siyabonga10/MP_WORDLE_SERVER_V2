@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MP_WORDLE_SERVER_V2.Services;
 
@@ -12,15 +14,20 @@ namespace MP_WORDLE_SERVER_V2.Controllers
         private readonly GameService _GameService = GameService;
 
         [HttpPost]
-        public IActionResult CreateGame()
+        public async Task<IActionResult> CreateGame()
         {
-            return NotFound("Not yet implemented");
+            var playerGuid = User.FindFirst("jti")?.Value!;
+            var newGame = await _GameService.CreateGameAsync();
+            var playerAddedAsHost = await _GameService.AddPlayerToGameAsync(newGame.Id.ToString(), playerGuid, ishost: true);
+            return playerAddedAsHost ? CreatedAtAction(nameof(CreateGame), newGame) : StatusCode(500, "Could not create new game");
         }
 
-        [HttpPut]
-        public IActionResult AddPlayer()
+        [HttpPut("{gameID}")]
+        public async Task<IActionResult> AddPlayer(string gameID)
         {
-            return NotFound("Not yer implemented");
+            var playerGuid = User.FindFirst("jti")?.Value!;
+            var playerAdded = await _GameService.AddPlayerToGameAsync(gameID, playerGuid, ishost: false);
+            return playerAdded ? NoContent() : BadRequest("Could not add player to game");
         }
     }
 }
