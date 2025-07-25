@@ -9,4 +9,6 @@ namespace MP_WORDLE_SERVER_V2.Data
         public DbSet<Game> Games { get; set; }
         public DbSet<GamePlayerJunction> GamePlayerJunctions { get; set; }
     }
+
+    public class GameCache(DbContextOptions options) : GameDb(options);
 }

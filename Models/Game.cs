@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 
 namespace MP_WORDLE_SERVER_V2.Models
 {
@@ -12,29 +13,31 @@ namespace MP_WORDLE_SERVER_V2.Models
         readonly private static int MaxPlayers = 5;
         public Guid Id { get; set; } = Guid.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        readonly private List<Player> players = [];
+        private List<Player> Players { get; set; } = [];
+        [JsonIgnore]
+        public Dictionary<string, StreamWriter> PlayerConnections { get; } = [];
         public GameState State { get; set; } = GameState.WAITING_FOR_PLAYERS;
         public Guid? HostId { get; set; } = Guid.Empty;
         public Guid? WinnerID { get; set; } = Guid.Empty;
 
         public ReadOnlyCollection<Player> GetAllPlayers()
         {
-            return players.AsReadOnly();
+            return Players.AsReadOnly();
         }
 
         public bool AddPlayer(Player newPlayer)
         {
-            if (players.Count >= MaxPlayers)
+            if (Players.Count >= MaxPlayers)
                 return false;
 
-            players.Add(newPlayer);
+            Players.Add(newPlayer);
             return true;
         }
         public bool RemovePlayer(Guid playerId)
         {
-            var targetPlayer = players.Find(player => player.Id == playerId);
+            var targetPlayer = Players.Find(player => player.Id == playerId);
             if (targetPlayer == null) return false;
-            players.Remove(targetPlayer);
+            Players.Remove(targetPlayer);
             return true;
         }
     }

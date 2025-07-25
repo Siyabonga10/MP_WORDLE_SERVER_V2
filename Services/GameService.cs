@@ -7,14 +7,16 @@ namespace MP_WORDLE_SERVER_V2.Services
     public class GameService
     {
         readonly private IDbContextFactory<GameDb> _DbContextFactory;
-        public GameService(IDbContextFactory<GameDb> dBCtxFactory)
+        readonly private IDbContextFactory<GameCache> _DbContextFactoryLive;
+        public GameService(IDbContextFactory<GameDb> dBCtxFactory, IDbContextFactory<GameCache> dbContextFactoryLive)
         {
             _DbContextFactory = dBCtxFactory;
+           _DbContextFactoryLive = dbContextFactoryLive;
         }
 
         public async Task<Game> CreateGameAsync()
         {
-            var dbCtx = _DbContextFactory.CreateDbContext();
+            var dbCtx = _DbContextFactoryLive.CreateDbContext();
             var newGame = new Game(Guid.NewGuid());
             await dbCtx.Games.AddAsync(newGame);
             await dbCtx.SaveChangesAsync();
@@ -26,7 +28,8 @@ namespace MP_WORDLE_SERVER_V2.Services
             Guid gameGUID = new(gameId);
             Guid playerGUID = new(playerId);
 
-            var dbCtx = _DbContextFactory.CreateDbContext();
+            var dbCtx = _DbContextFactoryLive.CreateDbContext();
+            var playerDb = _DbContextFactory.CreateDbContext();
             var targetGame = await dbCtx.Games.FirstAsync(game => game.Id == gameGUID);
             var targetPlayer = await dbCtx.Players.FirstAsync(player => player.Id == playerGUID);
 
@@ -64,7 +67,8 @@ namespace MP_WORDLE_SERVER_V2.Services
         {
             Guid gameGUID = new(gameId);
 
-            var dbCtx = _DbContextFactory.CreateDbContext();
+            var dbCtx = _DbContextFactoryLive.CreateDbContext();
+
             var targetGame = await dbCtx.Games.FirstAsync(game => game.Id == gameGUID);
 
             if (targetGame == null || targetGame.State >= newState) // State progresses forward, assumes states are ordered which is currently the case
@@ -74,6 +78,31 @@ namespace MP_WORDLE_SERVER_V2.Services
             dbCtx.Games.Update(targetGame);
             await dbCtx.SaveChangesAsync();
 
+            return true;
+        }
+
+        public async Task<bool> AddPlayerToGameStreamAsync(string gameGUID, string playerGUID, StreamWriter playerWriter)
+        {
+            Guid GameGUID = new(gameGUID);
+            Guid PlayerGUID = new(playerGUID);
+
+            var dbCtx = _DbContextFactoryLive.CreateDbContext();
+            var playerDb = _DbContextFactory.CreateDbContext();
+
+            var targetGame = await dbCtx.Games.FirstAsync(game => game.Id == GameGUID);
+            var targetPlayer = await dbCtx.Players.FirstAsync(player => player.Id == PlayerGUID);
+
+            if (targetGame == null || targetPlayer == null)
+                return false;
+
+            if (!targetGame.GetAllPlayers().Any(player => player == targetPlayer))
+                return false;
+
+            if (targetGame.PlayerConnections.Any(conn => conn.Value == playerWriter))
+                return false;
+
+            targetGame.PlayerConnections.Add(playerGUID, playerWriter);
+            dbCtx.Games.Update(targetGame);
             return true;
         }
     }

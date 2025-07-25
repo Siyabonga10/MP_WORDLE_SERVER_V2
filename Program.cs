@@ -8,6 +8,11 @@ using MP_WORDLE_SERVER_V2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Game") ?? "Data Source=Game.db";
+
+builder.Services.AddDbContextFactory<GameCache>(
+    options => options.UseInMemoryDatabase("temp")
+);
+
 builder.Services.AddDbContextFactory<GameDb>(
     options => options.UseSqlite(connectionString)
 );
