@@ -54,7 +54,9 @@ namespace MP_WORDLE_SERVER_V2.Services
                 if (targetGame == null)
                     return false;
 
-                if (targetGame.PlayerConnections.ContainsKey(PlayerGUID.ToString()))
+                var playerInGame = targetGame.GetAllPlayers().Any(playerGuid => playerGuid == PlayerGUID);
+
+                if (targetGame.PlayerConnections.ContainsKey(PlayerGUID.ToString()) || !playerInGame)
                     return false;
                 else
                     targetGame.PlayerConnections.Add(playerGUID, playerWriter);
@@ -82,8 +84,12 @@ namespace MP_WORDLE_SERVER_V2.Services
             if (target_game == null)
                 return;
 
+
+            foreach (var player in target_game.GetPlayerUsernames())
+                Console.WriteLine($"Player in game {player}");
             var player_usernames = target_game.GetPlayerUsernames().Except([username]);
             var payload = string.Join("\n", player_usernames);
+            Console.WriteLine($"Receipient {username}\nData: {payload}");
             await target_game.SendPlayersAlreadyInGame(targetPlauerGuid, payload);
         }
     }

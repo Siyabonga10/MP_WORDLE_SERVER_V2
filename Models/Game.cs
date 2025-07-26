@@ -67,6 +67,7 @@ namespace MP_WORDLE_SERVER_V2.Models
             if (target_player.Value == null)
                 return;
             await target_player.Value.WriteLineAsync(content);
+            await target_player.Value.FlushAsync();
         }
     }
 }
