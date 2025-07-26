@@ -66,7 +66,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
 
             var words = _WordManager.GetRandomWords(5);
             var words_payload = string.Join("\n", words);
-            await _GameService.SendToAll(gameID, words_payload, EventTypes.StartGame);
+            await _GameService.SendToAll(gameID, EventTypes.StartGame, words_payload);
 
             return Ok("Game started");
         }
