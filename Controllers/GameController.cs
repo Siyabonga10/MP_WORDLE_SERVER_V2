@@ -58,7 +58,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
         }
 
         [HttpPost("{gameID}/start")]
-        public IActionResult StartGame(string gameID)
+        public async Task<IActionResult> StartGame(string gameID)
         {
             var playerGuid = User.FindFirst("jti")?.Value!;
             if (!_GameService.StartGame(playerGuid, gameID))
@@ -66,7 +66,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
 
             var words = _WordManager.GetRandomWords(5);
             var words_payload = string.Join("\n", words);
-            _GameService.SendToALL(gameID, EventTypes.StartGame);
+            await _GameService.SendToAll(gameID, words_payload, EventTypes.StartGame);
 
             return Ok("Game started");
         }

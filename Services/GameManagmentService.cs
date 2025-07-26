@@ -83,18 +83,35 @@ namespace MP_WORDLE_SERVER_V2.Services
             if (target_game == null)
                 return;
 
-
-            foreach (var player in target_game.GetPlayerUsernames())
-                Console.WriteLine($"Player in game {player}");
             var player_usernames = target_game.GetPlayerUsernames().Except([username]);
             var payload = string.Join("\n", player_usernames);
-            Console.WriteLine($"Receipient {username}\nData: {payload}");
+            
             await target_game.SendPlayersAlreadyInGame(targetPlauerGuid, type, payload);
         }
 
         public bool StartGame(string playerID, string gameID)
         {
+            Guid gameGUID = new(gameID);
+            Guid playerGUID = new(playerID);
+            var target_game = ActiveGames.FirstOrDefault(game => game.Id == gameGUID);
+            if (target_game == null)
+                return false;
+
+            if (target_game.State != GameState.WAITING_FOR_PLAYERS)
+                return false;
+            if (target_game.HostId != playerGUID)
+                return false;
+            target_game.State = GameState.ON_GOING;
             return true;
+        }
+
+        public async Task SendToAll(string gameID, string eventType, string content)
+        {
+            Guid gameGUID = new(gameID);
+            var target_game = ActiveGames.FirstOrDefault(game => game.Id == gameGUID);
+            if (target_game == null)
+                return;
+            await target_game.SendToAll(eventType, content);
         }
     }
 }

@@ -71,5 +71,15 @@ namespace MP_WORDLE_SERVER_V2.Models
             await target_player.Value.WriteLineAsync(data);
             await target_player.Value.FlushAsync();
         }
+
+        public async Task SendToAll(string type, string content)
+        {
+            var data = $"Type: {type}\nData:{content}";
+            foreach (var playerConn in PlayerConnections)
+            {
+                await playerConn.Value.WriteLineAsync(data);
+                await playerConn.Value.FlushAsync();
+            }
+        }
     }
 }
