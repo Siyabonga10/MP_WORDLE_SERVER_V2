@@ -49,24 +49,26 @@ namespace MP_WORDLE_SERVER_V2.Models
             return true;
         }
 
-        public async Task SendToAllExcept(string playerGUID, string content)
+        public async Task SendToAllExcept(string playerGUID, string type, string content)
         {
+            var data = $"Type: {type}\nData:{content}";
             foreach (var playerConn in PlayerConnections)
             {
                 if (playerConn.Key != playerGUID)
                 {
-                    await playerConn.Value.WriteLineAsync(content);
+                    await playerConn.Value.WriteLineAsync(data);
                     await playerConn.Value.FlushAsync();
                 }
             }
         }
 
-        public async Task SendPlayersAlreadyInGame(string playerGUID, string content)
+        public async Task SendPlayersAlreadyInGame(string playerGUID, string type, string content)
         {
             var target_player = PlayerConnections.FirstOrDefault(playerConn => playerConn.Key == playerGUID);
             if (target_player.Value == null)
                 return;
-            await target_player.Value.WriteLineAsync(content);
+            var data = $"Type: {type}\nData:{content}";
+            await target_player.Value.WriteLineAsync(data);
             await target_player.Value.FlushAsync();
         }
     }

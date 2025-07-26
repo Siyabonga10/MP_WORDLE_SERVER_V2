@@ -2,7 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
+using MP_WORDLE_SERVER_V2.Constants;
 using Microsoft.AspNetCore.Mvc;
 using MP_WORDLE_SERVER_V2.Services;
 
@@ -47,8 +47,8 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             Response.Headers.Connection = "keep-alive";
 
             var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-            await _GameService.SendToAllExcept(gameID, playerGuid, username);
-            await _GameService.SendPlayersAlreadyInGame(playerGuid, gameID, username);
+            await _GameService.SendToAllExcept(gameID, playerGuid, username, EventTypes.PlayerJoined);
+            await _GameService.SendPlayersAlreadyInGame(playerGuid, gameID, username, EventTypes.PlayersInGame);
             while (!HttpContext.RequestAborted.IsCancellationRequested)
             {
                 await Task.Delay(1000);
