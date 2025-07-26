@@ -11,9 +11,10 @@ namespace MP_WORDLE_SERVER_V2.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class GameController(GameManagementService GameService) : ControllerBase
+    public class GameController(GameManagementService GameService, IWordManager wordManager) : ControllerBase
     {
         private readonly GameManagementService _GameService = GameService;
+        private readonly IWordManager _WordManager = wordManager;
 
         [HttpPost]
         public async Task<IActionResult> CreateGame()
@@ -30,7 +31,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
         {
             var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
             var playerGuid = User.FindFirst("jti")?.Value!;
-            var playerAdded = await _GameService.AddPlayerToGameAsync(gameID, playerGuid, username,  ishost: false);
+            var playerAdded = await _GameService.AddPlayerToGameAsync(gameID, playerGuid, username, ishost: false);
             return playerAdded ? NoContent() : BadRequest("Could not add player to game");
         }
 
@@ -54,6 +55,20 @@ namespace MP_WORDLE_SERVER_V2.Controllers
                 await Task.Delay(1000);
             }
             return new JsonResult("Game stream closed");
+        }
+
+        [HttpPost("{gameID}/start")]
+        public IActionResult StartGame(string gameID)
+        {
+            var playerGuid = User.FindFirst("jti")?.Value!;
+            if (!_GameService.StartGame(playerGuid, gameID))
+                return BadRequest("Could not start game");
+
+            var words = _WordManager.GetRandomWords(5);
+            var words_payload = string.Join("\n", words);
+            _GameService.SendToALL(gameID, EventTypes.StartGame);
+
+            return Ok("Game started");
         }
     }
 }

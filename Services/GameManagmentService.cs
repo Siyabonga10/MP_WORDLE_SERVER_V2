@@ -91,5 +91,10 @@ namespace MP_WORDLE_SERVER_V2.Services
             Console.WriteLine($"Receipient {username}\nData: {payload}");
             await target_game.SendPlayersAlreadyInGame(targetPlauerGuid, type, payload);
         }
+
+        public bool StartGame(string playerID, string gameID)
+        {
+            return true;
+        }
     }
 }

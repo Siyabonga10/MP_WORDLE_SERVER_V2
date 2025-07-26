@@ -50,6 +50,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<PlayerService>();
 builder.Services.AddSingleton<GameManagementService>();
+builder.Services.AddSingleton<IWordManager, TestWordManager>();
 
 
 builder.Services.AddControllers();
