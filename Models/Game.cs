@@ -13,31 +13,31 @@ namespace MP_WORDLE_SERVER_V2.Models
         readonly private static int MaxPlayers = 5;
         public Guid Id { get; set; } = Guid.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        private List<Player> Players { get; set; } = [];
+        private List<Guid> PlayerIDs { get; set; } = [];
         [JsonIgnore]
         public Dictionary<string, StreamWriter> PlayerConnections { get; } = [];
         public GameState State { get; set; } = GameState.WAITING_FOR_PLAYERS;
         public Guid? HostId { get; set; } = Guid.Empty;
         public Guid? WinnerID { get; set; } = Guid.Empty;
 
-        public ReadOnlyCollection<Player> GetAllPlayers()
+        public ReadOnlyCollection<Guid> GetAllPlayers()
         {
-            return Players.AsReadOnly();
+            return PlayerIDs.AsReadOnly();
         }
 
-        public bool AddPlayer(Player newPlayer)
+        public bool AddPlayer(Guid newPlayer)
         {
-            if (Players.Count >= MaxPlayers)
+            if (PlayerIDs.Count >= MaxPlayers)
                 return false;
 
-            Players.Add(newPlayer);
+            PlayerIDs.Add(newPlayer);
             return true;
         }
         public bool RemovePlayer(Guid playerId)
         {
-            var targetPlayer = Players.Find(player => player.Id == playerId);
-            if (targetPlayer == null) return false;
-            Players.Remove(targetPlayer);
+            var targetPlayer = PlayerIDs.FirstOrDefault(playerGuid => playerGuid == playerId);
+           // if (targetPlayer == null) return false;
+            PlayerIDs.Remove(targetPlayer);
             return true;
         }
     }

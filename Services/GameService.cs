@@ -16,7 +16,7 @@ namespace MP_WORDLE_SERVER_V2.Services
 
         public async Task<Game> CreateGameAsync()
         {
-            var dbCtx = _DbContextFactoryLive.CreateDbContext();
+            using var dbCtx = _DbContextFactoryLive.CreateDbContext();
             var newGame = new Game(Guid.NewGuid());
             await dbCtx.Games.AddAsync(newGame);
             await dbCtx.SaveChangesAsync();
@@ -28,17 +28,17 @@ namespace MP_WORDLE_SERVER_V2.Services
             Guid gameGUID = new(gameId);
             Guid playerGUID = new(playerId);
 
-            var dbCtx = _DbContextFactoryLive.CreateDbContext();
-            var playerDb = _DbContextFactory.CreateDbContext();
-            var targetGame = await dbCtx.Games.FirstAsync(game => game.Id == gameGUID);
-            var targetPlayer = await dbCtx.Players.FirstAsync(player => player.Id == playerGUID);
+            using var dbCtx = _DbContextFactoryLive.CreateDbContext();
+            using var playerDb = _DbContextFactory.CreateDbContext();
+            var targetGame = await dbCtx.Games.FirstOrDefaultAsync(game => game.Id == gameGUID);
+            var targetPlayer = await playerDb.Players.FirstOrDefaultAsync(player => player.Id == playerGUID);
 
             if (targetGame == null || targetPlayer == null)
                 return false;
 
             if (targetGame.State == GameState.WAITING_FOR_PLAYERS)
             {
-                var playerAdded = targetGame.AddPlayer(targetPlayer);
+                var playerAdded = targetGame.AddPlayer(playerGUID);
                 if (!playerAdded) return false;
                 var gamePlayerJunction = new GamePlayerJunction()
                 {
@@ -67,9 +67,9 @@ namespace MP_WORDLE_SERVER_V2.Services
         {
             Guid gameGUID = new(gameId);
 
-            var dbCtx = _DbContextFactoryLive.CreateDbContext();
+            using var dbCtx = _DbContextFactoryLive.CreateDbContext();
 
-            var targetGame = await dbCtx.Games.FirstAsync(game => game.Id == gameGUID);
+            var targetGame = await dbCtx.Games.FirstOrDefaultAsync(game => game.Id == gameGUID);
 
             if (targetGame == null || targetGame.State >= newState) // State progresses forward, assumes states are ordered which is currently the case
                 return false;
@@ -86,16 +86,16 @@ namespace MP_WORDLE_SERVER_V2.Services
             Guid GameGUID = new(gameGUID);
             Guid PlayerGUID = new(playerGUID);
 
-            var dbCtx = _DbContextFactoryLive.CreateDbContext();
-            var playerDb = _DbContextFactory.CreateDbContext();
+            using var dbCtx = _DbContextFactoryLive.CreateDbContext();
+            using var playerDb = _DbContextFactory.CreateDbContext();
 
-            var targetGame = await dbCtx.Games.FirstAsync(game => game.Id == GameGUID);
-            var targetPlayer = await dbCtx.Players.FirstAsync(player => player.Id == PlayerGUID);
+            var targetGame = await dbCtx.Games.FirstOrDefaultAsync(game => game.Id == GameGUID);
+            var targetPlayer = await playerDb.Players.FirstOrDefaultAsync(player => player.Id == PlayerGUID);
 
             if (targetGame == null || targetPlayer == null)
                 return false;
 
-            if (!targetGame.GetAllPlayers().Any(player => player == targetPlayer))
+            if (!targetGame.GetAllPlayers().Any(player => player == PlayerGUID))
                 return false;
 
             if (targetGame.PlayerConnections.Any(conn => conn.Value == playerWriter))

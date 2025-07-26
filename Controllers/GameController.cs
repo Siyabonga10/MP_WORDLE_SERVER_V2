@@ -9,15 +9,15 @@ namespace MP_WORDLE_SERVER_V2.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class GameController(GameService GameService) : ControllerBase
+    public class GameController(GameManagementService GameService) : ControllerBase
     {
-        private readonly GameService _GameService = GameService;
+        private readonly GameManagementService _GameService = GameService;
 
         [HttpPost]
         public async Task<IActionResult> CreateGame()
         {
             var playerGuid = User.FindFirst("jti")?.Value!;
-            var newGame = await _GameService.CreateGameAsync();
+            var newGame = _GameService.CreateGame();
             var playerAddedAsHost = await _GameService.AddPlayerToGameAsync(newGame.Id.ToString(), playerGuid, ishost: true);
             return playerAddedAsHost ? CreatedAtAction(nameof(CreateGame), newGame) : StatusCode(500, "Could not create new game");
         }

@@ -10,7 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Game") ?? "Data Source=Game.db";
 
 builder.Services.AddDbContextFactory<GameCache>(
-    options => options.UseInMemoryDatabase("temp")
+    options => options.UseInMemoryDatabase("temp"),
+    ServiceLifetime.Singleton
 );
 
 builder.Services.AddDbContextFactory<GameDb>(
@@ -48,7 +49,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<PlayerService>();
-builder.Services.AddSingleton<GameService>();
+builder.Services.AddSingleton<GameManagementService>();
 
 
 builder.Services.AddControllers();
