@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MP_WORDLE_SERVER_V2.Models;
 
 namespace MP_WORDLE_SERVER_V2.Services
@@ -12,7 +13,7 @@ namespace MP_WORDLE_SERVER_V2.Services
             return newGame;
         }
 
-        public async Task<bool> AddPlayerToGameAsync(string gameId, string playerId, bool ishost)
+        public async Task<bool> AddPlayerToGameAsync(string gameId, string playerId, string username, bool ishost)
         {
             var res = await Task.Run(() =>
             {
@@ -26,7 +27,7 @@ namespace MP_WORDLE_SERVER_V2.Services
 
                 if (targetGame.State == GameState.WAITING_FOR_PLAYERS)
                 {
-                    var playerAdded = targetGame.AddPlayer(playerGUID);
+                    var playerAdded = targetGame.AddPlayer(playerGUID, username);
                     if (!playerAdded) return false;
                 }
                 else
@@ -62,6 +63,28 @@ namespace MP_WORDLE_SERVER_V2.Services
             });
 
             return res;
+        }
+
+        public async Task SendToAllExcept(string gameID, string playerGUID, string content)
+        {
+            Guid gameGUID = new(gameID);
+            var target_game = ActiveGames.FirstOrDefault(game => game.Id == gameGUID);
+            if (target_game == null)
+                return;
+
+            await target_game.SendToAllExcept(playerGUID, content);
+        }
+
+        public async Task SendPlayersAlreadyInGame(string targetPlauerGuid, string gameID, string username)
+        {
+            Guid gameGUID = new(gameID);
+            var target_game = ActiveGames.FirstOrDefault(game => game.Id == gameGUID);
+            if (target_game == null)
+                return;
+
+            var player_usernames = target_game.GetPlayerUsernames().Except([username]);
+            var payload = string.Join("\n", player_usernames);
+            await target_game.SendPlayersAlreadyInGame(targetPlauerGuid, payload);
         }
     }
 }
