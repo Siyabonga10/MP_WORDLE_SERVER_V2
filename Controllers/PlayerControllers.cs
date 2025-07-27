@@ -16,7 +16,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             _playerService = plService;
         }
 
-        [HttpPost("/create")]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateAccount([FromBody] Player player)
         {
             var result = await _playerService.CreatePlayer(player.Username, player.Password);
@@ -27,7 +27,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             return Ok(result.OutcomeMsg);
         }
 
-        [HttpPost("/login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Player player)
         {
             Player? authenticated_player = await _playerService.GetPlayerFromCredentials(player.Username, player.Password);

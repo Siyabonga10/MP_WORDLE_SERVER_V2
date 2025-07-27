@@ -55,13 +55,15 @@ namespace MP_WORDLE_SERVER_V2.Services
 
             Player newPlayer = new(Guid.NewGuid(), username);
             newPlayer.Password = _Hasher.HashPassword(newPlayer, password);
+            await _DbContext.Players.AddAsync(newPlayer);
+            await _DbContext.SaveChangesAsync();
 
             return (newPlayer, "User created");
         }
 
         public async Task<Player?> GetPlayerFromCredentials(string username, string password)
         {
-            var target_user = await _DbContext.Players.FirstAsync(player => player.Username == username);
+            var target_user = await _DbContext.Players.FirstOrDefaultAsync(player => player.Username == username);
             if (target_user == null)
                 return null;
 
