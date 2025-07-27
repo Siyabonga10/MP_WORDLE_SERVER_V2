@@ -6,19 +6,21 @@ using MP_WORDLE_SERVER_V2.Data;
 using System.Text;
 using MP_WORDLE_SERVER_V2.Models;
 using Microsoft.Identity.Client;
+using Microsoft.AspNetCore.Identity;
 
 namespace MP_WORDLE_SERVER_V2.Services
 {
     public class PlayerService
     {
         private readonly GameDb _DbContext;
+        private readonly PasswordHasher<Player> _Hasher;
         public PlayerService(GameDb DbContext)
         {
             _DbContext = DbContext;
+            _Hasher = new();
         }
-        public async Task<string> GenerateJwtTokenAsync(Player player) // For testing purposes, I'll just assume that this is where the player is also being created, no validation yet !!!
+        public void AddJWTToPlayer(Player player, HttpResponse response) // For testing purposes, I'll just assume that this is where the player is also being created, no validation yet !!!
         {
-            player.Id = Guid.NewGuid();
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, player.Username),
@@ -33,13 +35,40 @@ namespace MP_WORDLE_SERVER_V2.Services
                 issuer: "MpWordle.com",
                 audience: "MpWordle.com",
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(30),
+                expires: DateTime.UtcNow.AddHours(3),
                 signingCredentials: creds);
 
-            await _DbContext.Players.AddAsync(player);
-            await _DbContext.SaveChangesAsync();
+            response.Cookies.Append("jwt_token", new JwtSecurityTokenHandler().WriteToken(token), new CookieOptions
+            {
+                HttpOnly = true,  // Cannot be accessed by JavaScript
+                Secure = true,    // HTTPS only
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(30)
+            });
+        }
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+        public async Task<(Player? NewPlayer, string OutcomeMsg)> CreatePlayer(string username, string password)
+        {
+            var usernameExists = await _DbContext.Players.AnyAsync(player => player.Username == username);
+            if (usernameExists)
+                return (null, "Username already exists");
+
+            Player newPlayer = new(Guid.NewGuid(), username);
+            newPlayer.Password = _Hasher.HashPassword(newPlayer, password);
+
+            return (newPlayer, "User created");
+        }
+
+        public async Task<Player?> GetPlayerFromCredentials(string username, string password)
+        {
+            var target_user = await _DbContext.Players.FirstAsync(player => player.Username == username);
+            if (target_user == null)
+                return null;
+
+            if (_Hasher.VerifyHashedPassword(target_user, target_user.Password, password) == PasswordVerificationResult.Success)
+                return target_user;
+
+            return null;
         }
     }
 }

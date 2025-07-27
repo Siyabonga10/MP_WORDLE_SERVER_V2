@@ -16,20 +16,26 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             _playerService = plService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AuthenticatePlayerAsync([FromBody] Player player)
+        [HttpPost("/create")]
+        public async Task<IActionResult> CreateAccount([FromBody] Player player)
         {
-            var token = await _playerService.GenerateJwtTokenAsync(player);
+            var result = await _playerService.CreatePlayer(player.Username, player.Password);
+            if (result.NewPlayer == null)
+                return Conflict(result.OutcomeMsg);
+            _playerService.AddJWTToPlayer(player, Response);
 
-            Response.Cookies.Append("jwt_token", token, new CookieOptions
-            {
-                HttpOnly = true,  // Cannot be accessed by JavaScript
-                Secure = true,    // HTTPS only
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddMinutes(30)
-            });
+            return Ok(result.OutcomeMsg);
+        }
 
-            return Ok(new { message = "Authentication successful" });
+        [HttpPost("/login")]
+        public async Task<IActionResult> Login([FromBody] Player player)
+        {
+            Player? authenticated_player = await _playerService.GetPlayerFromCredentials(player.Username, player.Password);
+            if (authenticated_player == null)
+                return Unauthorized("Invalid credentials");
+
+            _playerService.AddJWTToPlayer(player, Response);
+            return Ok("Login succesful");
         }
 
         [HttpGet]
