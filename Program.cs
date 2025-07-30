@@ -11,15 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 if (!builder.Environment.IsDevelopment())
 {
-    var keyVaultName = builder.Configuration["mpworlde"];
-    if (!string.IsNullOrEmpty(keyVaultName))
-    {
-        var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
-        builder.Configuration.AddAzureKeyVault(
-            keyVaultUri,
-            new DefaultAzureCredential()
-        );
-    }
+    var keyVaultUri = new Uri($"https://mpwordle.vault.azure.net/");
+    builder.Configuration.AddAzureKeyVault(
+        keyVaultUri,
+        new DefaultAzureCredential()
+    );
 }
 
 if (builder.Configuration.GetConnectionString("DefaultConnection") == null)
