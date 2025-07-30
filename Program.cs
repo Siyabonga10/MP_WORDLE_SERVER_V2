@@ -62,7 +62,7 @@ builder.Services.AddSingleton<GameManagementService>();
 builder.Services.AddSingleton<IWordManager, TestWordManager>();
 
 
-builder.Services.AddControllers(); //
+builder.Services.AddControllers(); 
 
 var app = builder.Build();
 
