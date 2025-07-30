@@ -22,6 +22,9 @@ if (!builder.Environment.IsDevelopment())
     }
 }
 
+if (builder.Configuration.GetConnectionString("DefaultConnection") == null)
+    throw new("Could not load database connection string");
+
 builder.Services.AddDbContextFactory<GameCache>(
     options => options.UseInMemoryDatabase("temp"),
     ServiceLifetime.Singleton
