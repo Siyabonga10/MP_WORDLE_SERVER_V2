@@ -19,6 +19,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateAccount([FromBody] Player player)
         {
+            Console.WriteLine("Invoked");
             var result = await _playerService.CreatePlayer(player.Username, player.Password);
             if (result.NewPlayer == null)
                 return Conflict(result.OutcomeMsg);
