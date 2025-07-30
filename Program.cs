@@ -10,6 +10,8 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Console.WriteLine("Beginning app building");
+
 if (!builder.Environment.IsDevelopment())
 {
     var keyVaultUri = new Uri($"https://mpwordle.vault.azure.net/");
@@ -23,6 +25,8 @@ builder.Services.AddDbContextFactory<GameCache>(
     options => options.UseInMemoryDatabase("temp"),
     ServiceLifetime.Singleton
 );
+
+Console.WriteLine("Helllooooo");
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration)
