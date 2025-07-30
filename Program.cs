@@ -4,18 +4,30 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MP_WORDLE_SERVER_V2.Services;
+using Azure.Identity;
 
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("Game") ?? "Data Source=Game.db";
+
+if (!builder.Environment.IsDevelopment())
+{
+    var keyVaultName = builder.Configuration["mpworlde"];
+    if (!string.IsNullOrEmpty(keyVaultName))
+    {
+        var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+        builder.Configuration.AddAzureKeyVault(
+            keyVaultUri,
+            new DefaultAzureCredential()
+        );
+    }
+}
 
 builder.Services.AddDbContextFactory<GameCache>(
     options => options.UseInMemoryDatabase("temp"),
     ServiceLifetime.Singleton
 );
-
 builder.Services.AddDbContextFactory<GameDb>(
-    options => options.UseSqlite(connectionString)
+    options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
 builder.Services.AddOpenApi();
