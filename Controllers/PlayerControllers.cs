@@ -48,7 +48,11 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             var envs = Environment.GetEnvironmentVariables();
             if (envs == null)
                 return Ok("No envs found");
-            return Ok($"envs count {envs.Count}");
+
+            string env_list = "";
+            foreach (System.Collections.DictionaryEntry env in envs)
+                env_list += $"{env.Key}\n";
+            return Ok($"envs keys \n {env_list}");
         }
     }
 }
