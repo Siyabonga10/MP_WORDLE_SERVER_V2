@@ -22,7 +22,7 @@ var conn_string = builder.Configuration.GetConnectionString("DefaultConnection")
 
 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
 {
-    conn_string = Environment.GetEnvironmentVariable("APP_SETTINGS_DB_CONNECTION_STRING");
+    conn_string = Environment.GetEnvironmentVariable("APPSETTING_DB_ConnectionString");
 }
 
 builder.Services.AddDbContextFactory<GameDb>(
