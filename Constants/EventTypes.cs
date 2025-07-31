@@ -7,9 +7,4 @@ namespace MP_WORDLE_SERVER_V2.Constants
         public const string StartGame = "StartGame";
         public const string WinnerUpdate = "WinnerUpdate";
     }
-
-    public class TmpClass
-    {
-        public static string Tmp { get; set; } = "Un-initiased";
-    }
 }

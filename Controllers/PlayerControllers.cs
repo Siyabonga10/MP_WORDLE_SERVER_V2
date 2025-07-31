@@ -44,17 +44,10 @@ namespace MP_WORDLE_SERVER_V2.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult TestEndpoint()
         {
-            var envs = Environment.GetEnvironmentVariables();
-            if (envs == null)
-                return Ok("No envs found");
-
-            string env_list = "";
-            foreach (System.Collections.DictionaryEntry env in envs)
-                env_list += $"{env.Key}\n";
-            env_list += $"\n\n {TmpClass.Tmp}";
-            return Ok($"envs keys \n {env_list}");
+            return Ok($"Player authorized");
         }
     }
 }
