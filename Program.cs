@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MP_WORDLE_SERVER_V2.Services;
 using Serilog;
+using MP_WORDLE_SERVER_V2.Constants;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +23,10 @@ var conn_string = builder.Configuration.GetConnectionString("DefaultConnection")
 
 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
 {
+    TmpClass.Tmp = "In production";
     conn_string = Environment.GetEnvironmentVariable("APPSETTING_DB_ConnectionString");
+    if (conn_string != null)
+        TmpClass.Tmp += $"\nFound the connection string {conn_string[..5]}";
 }
 
 builder.Services.AddDbContextFactory<GameDb>(

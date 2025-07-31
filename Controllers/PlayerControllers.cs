@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using MP_WORDLE_SERVER_V2.Models;
 using Microsoft.AspNetCore.Mvc;
 using MP_WORDLE_SERVER_V2.Services;
+using MP_WORDLE_SERVER_V2.Constants;
 
 namespace MP_WORDLE_SERVER_V2.Controllers
 {
@@ -52,6 +53,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             string env_list = "";
             foreach (System.Collections.DictionaryEntry env in envs)
                 env_list += $"{env.Key}\n";
+            env_list += $"\n\n {TmpClass.Tmp}";
             return Ok($"envs keys \n {env_list}");
         }
     }
