@@ -21,7 +21,7 @@ builder.Host.UseSerilog((context, configuration) =>
 
 var conn_string = builder.Configuration.GetConnectionString("DefaultConnection");
 
-if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
+if (builder.Environment.IsProduction())
 {
     TmpClass.Tmp = "In production";
     conn_string = Environment.GetEnvironmentVariable("APPSETTING_DB_ConnectionString");
