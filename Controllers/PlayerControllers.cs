@@ -43,10 +43,12 @@ namespace MP_WORDLE_SERVER_V2.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public IActionResult TestEndpoint()
         {
-            return Ok("Authorized");
+            var envs = Environment.GetEnvironmentVariables();
+            if (envs == null)
+                return Ok("No envs found");
+            return Ok($"envs count {envs.Count}");
         }
     }
 }

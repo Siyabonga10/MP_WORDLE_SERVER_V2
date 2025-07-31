@@ -4,29 +4,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MP_WORDLE_SERVER_V2.Services;
-using Azure.Identity;
 using Serilog;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-Console.WriteLine("Beginning app building");
-
-if (!builder.Environment.IsDevelopment())
-{
-    var keyVaultUri = new Uri($"https://mpwordle.vault.azure.net/");
-    builder.Configuration.AddAzureKeyVault(
-        keyVaultUri,
-        new DefaultAzureCredential()
-    );
-}
-
 builder.Services.AddDbContextFactory<GameCache>(
     options => options.UseInMemoryDatabase("temp"),
     ServiceLifetime.Singleton
 );
-
-Console.WriteLine("Helllooooo");
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration)
