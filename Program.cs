@@ -24,7 +24,8 @@ var conn_string = builder.Configuration.GetConnectionString("DefaultConnection")
 if (builder.Environment.IsProduction())
 {
     conn_string = Environment.GetEnvironmentVariable("APPSETTING_DB_ConnectionString");
-    throw new("Could not connect to database");
+    if(conn_string == null)
+        throw new("Could not connect to database");
 }
 
 builder.Services.AddDbContextFactory<GameDb>(
