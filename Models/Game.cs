@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -13,6 +14,8 @@ namespace MP_WORDLE_SERVER_V2.Models
         }
         readonly private static int MaxPlayers = 5;
         public Guid Id { get; set; } = Guid.Empty;
+        [NotMapped]
+        public string ShortId { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         private List<Guid> PlayerIDs { get; set; } = [];
         private List<string> playerUsernames { get; set; } = [];

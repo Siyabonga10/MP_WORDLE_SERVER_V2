@@ -22,7 +22,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
             var playerGuid = User.FindFirst("jti")?.Value!;
             var newGame = _GameService.CreateGame();
-            var playerAddedAsHost = await _GameService.AddPlayerToGameAsync(newGame.Id.ToString(), playerGuid, username, ishost: true);
+            var playerAddedAsHost = await _GameService.AddPlayerToGameAsync(newGame.ShortId, playerGuid, username, ishost: true);
             return playerAddedAsHost ? CreatedAtAction(nameof(CreateGame), newGame) : StatusCode(500, "Could not create new game");
         }
 

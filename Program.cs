@@ -5,8 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MP_WORDLE_SERVER_V2.Services;
 using Serilog;
-using MP_WORDLE_SERVER_V2.Constants;
-
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -8,6 +8,7 @@ namespace MP_WORDLE_SERVER_V2.Services
         public Game CreateGame()
         {
             var newGame = new Game(Guid.NewGuid());
+            newGame.ShortId = newGame.Id.ToString()[..5];
             ActiveGames.Add(newGame);
             return newGame;
         }
@@ -16,10 +17,9 @@ namespace MP_WORDLE_SERVER_V2.Services
         {
             var res = await Task.Run(() =>
             {
-                Guid gameGUID = new(gameId);
                 Guid playerGUID = new(playerId);
 
-                var targetGame = ActiveGames.FirstOrDefault(game => game.Id == gameGUID);
+                var targetGame = ActiveGames.FirstOrDefault(game => game.ShortId == gameId);
 
                 if (targetGame == null)
                     return false;
@@ -45,10 +45,9 @@ namespace MP_WORDLE_SERVER_V2.Services
         {
             var res = await Task.Run(() =>
             {
-                Guid GameGUID = new(gameGUID);
                 Guid PlayerGUID = new(playerGUID);
 
-                var targetGame = ActiveGames.FirstOrDefault(game => game.Id == GameGUID);
+                var targetGame = ActiveGames.FirstOrDefault(game => game.ShortId == gameGUID);
 
                 if (targetGame == null)
                     return false;
@@ -68,8 +67,7 @@ namespace MP_WORDLE_SERVER_V2.Services
 
         public async Task SendToAllExcept(string gameID, string playerGUID, string type, string content)
         {
-            Guid gameGUID = new(gameID);
-            var target_game = ActiveGames.FirstOrDefault(game => game.Id == gameGUID);
+            var target_game = ActiveGames.FirstOrDefault(game => game.ShortId == gameID);
             if (target_game == null)
                 return;
 
@@ -78,8 +76,7 @@ namespace MP_WORDLE_SERVER_V2.Services
 
         public async Task SendPlayersAlreadyInGame(string targetPlauerGuid, string gameID, string username, string type)
         {
-            Guid gameGUID = new(gameID);
-            var target_game = ActiveGames.FirstOrDefault(game => game.Id == gameGUID);
+            var target_game = ActiveGames.FirstOrDefault(game => game.ShortId == gameID);
             if (target_game == null)
                 return;
 
@@ -91,9 +88,8 @@ namespace MP_WORDLE_SERVER_V2.Services
 
         public bool StartGame(string playerID, string gameID)
         {
-            Guid gameGUID = new(gameID);
             Guid playerGUID = new(playerID);
-            var target_game = ActiveGames.FirstOrDefault(game => game.Id == gameGUID);
+            var target_game = ActiveGames.FirstOrDefault(game => game.ShortId == gameID);
             if (target_game == null)
                 return false;
 
@@ -107,8 +103,7 @@ namespace MP_WORDLE_SERVER_V2.Services
 
         public async Task SendToAll(string gameID, string eventType, string content)
         {
-            Guid gameGUID = new(gameID);
-            var target_game = ActiveGames.FirstOrDefault(game => game.Id == gameGUID);
+            var target_game = ActiveGames.FirstOrDefault(game => game.ShortId == gameID);
             if (target_game == null)
                 return;
             await target_game.SendToAll(eventType, content);
