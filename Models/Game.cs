@@ -40,6 +40,8 @@ namespace MP_WORDLE_SERVER_V2.Models
             if (PlayerIDs.Count >= MaxPlayers)
                 return false;
 
+            if (playerUsernames.Any(_username => _username == username))
+                return true; // Avoid adding the same player multiple times, but technically they are in the list
             PlayerIDs.Add(newPlayer);
             playerUsernames.Add(username);
             return true;
