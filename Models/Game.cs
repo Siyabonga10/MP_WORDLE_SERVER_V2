@@ -56,7 +56,7 @@ namespace MP_WORDLE_SERVER_V2.Models
 
         public async Task SendToAllExcept(string playerGUID, string type, string content)
         {
-            var data = $"Type: {type}\nData:{content}";
+            var data = $"Type: {type}\nData:{content}\r\n";
             foreach (var playerConn in PlayerConnections)
             {
                 if (playerConn.Key != playerGUID)
@@ -72,14 +72,14 @@ namespace MP_WORDLE_SERVER_V2.Models
             var target_player = PlayerConnections.FirstOrDefault(playerConn => playerConn.Key == playerGUID);
             if (target_player.Value == null)
                 return;
-            var data = $"Type: {type}\nData:{content}";
+            var data = $"Type: {type}\nData:{content}\r\n";
             await target_player.Value.WriteLineAsync(data);
             await target_player.Value.FlushAsync();
         }
 
         public async Task SendToAll(string type, string content)
         {
-            var data = $"Type: {type}\nData:{content}";
+            var data = $"Type: {type}\nData:{content}\r\n";
             foreach (var playerConn in PlayerConnections)
             {
                 await playerConn.Value.WriteLineAsync(data);
