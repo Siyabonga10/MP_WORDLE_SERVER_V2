@@ -57,8 +57,9 @@ namespace MP_WORDLE_SERVER_V2.Services
 
                 if (targetGame.PlayerConnections.ContainsKey(PlayerGUID.ToString()) || !playerInGame)
                 {
-                    LastError += playerInGame ? "PlayerInGame\n": "PlayerNotInGame\n";
                     LastError += targetGame.PlayerConnections.ContainsKey(PlayerGUID.ToString()) ? "DuplicateConn\n": "UniqueConn\n";
+                    foreach (var entry in targetGame.PlayerConnections)
+                        LastError += $"{entry.Key}\n";
                     return false;
                 }
                 else
