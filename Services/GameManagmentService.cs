@@ -5,6 +5,7 @@ namespace MP_WORDLE_SERVER_V2.Services
     public class GameManagementService
     {
         private readonly List<Game> ActiveGames = [];
+        public string LastError = string.Empty;
         public Game CreateGame()
         {
             var newGame = new Game(Guid.NewGuid());
@@ -55,7 +56,11 @@ namespace MP_WORDLE_SERVER_V2.Services
                 var playerInGame = targetGame.GetAllPlayers().Any(playerGuid => playerGuid == PlayerGUID);
 
                 if (targetGame.PlayerConnections.ContainsKey(PlayerGUID.ToString()) || !playerInGame)
+                {
+                    LastError += playerInGame ? "PlayerInGame\n": "PlayerNotInGame\n";
+                    LastError += targetGame.PlayerConnections.ContainsKey(PlayerGUID.ToString()) ? "DuplicateConn\n": "UniqueConn\n";
                     return false;
+                }
                 else
                     targetGame.PlayerConnections.Add(playerGUID, playerWriter);
 

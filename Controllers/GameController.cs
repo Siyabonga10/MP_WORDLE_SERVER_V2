@@ -32,7 +32,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
             var playerGuid = User.FindFirst("jti")?.Value!;
             var playerAdded = await _GameService.AddPlayerToGameAsync(gameID, playerGuid, username, ishost: false);
-            return playerAdded ? NoContent() : BadRequest("Could not add player to game");
+            return playerAdded ? NoContent() : BadRequest($"Could not add player to game due to \n {_GameService.LastError}");
         }
 
         [HttpGet("{gameID}")]
