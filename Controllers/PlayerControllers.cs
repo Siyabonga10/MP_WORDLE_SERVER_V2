@@ -26,7 +26,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             var result = await _playerService.CreatePlayer(player.Username, player.Password);
             if (result.NewPlayer == null)
                 return Conflict(result.OutcomeMsg);
-            _playerService.AddJWTToPlayer(player, Response);
+            _playerService.AddJWTToPlayer(result.NewPlayer, Response);
 
             return CreatedAtAction(nameof(CreateAccount), result.NewPlayer);
         }
