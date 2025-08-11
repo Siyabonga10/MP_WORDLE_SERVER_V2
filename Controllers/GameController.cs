@@ -41,7 +41,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             var playerGuid = User.FindFirst("jti")?.Value!;
             var playerAdded = await _GameService.AddPlayerToGameStreamAsync(gameID, playerGuid, new StreamWriter(Response.Body));
             if (!playerAdded)
-                return Unauthorized("Could not subscribe to game events");
+                return Unauthorized($"Could not subscribe to game events with id {gameID}");
 
             Response.Headers.ContentType = "text/event-stream";
             Response.Headers.CacheControl = "no-cache";
