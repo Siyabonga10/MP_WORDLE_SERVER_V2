@@ -32,7 +32,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
             var playerGuid = User.FindFirst("jti")?.Value!;
             var playerAdded = await _GameService.AddPlayerToGameAsync(gameID, playerGuid, username, ishost: false);
-            return playerAdded ? NoContent() : BadRequest($"Could not add player to game due to \n {_GameService.LastError}");
+            return playerAdded ? NoContent() : BadRequest("Could not add player to game.");
         }
 
         [HttpGet("{gameID}")]
@@ -41,7 +41,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             var playerGuid = User.FindFirst("jti")?.Value!;
             var playerAdded = await _GameService.AddPlayerToGameStreamAsync(gameID, playerGuid, new StreamWriter(Response.Body));
             if (!playerAdded)
-                return Unauthorized($"Could not subscribe to game events with id {gameID} due to \n {_GameService.LastError}");
+                return Unauthorized("Could not subscribe to game events.");
 
             Response.Headers.ContentType = "text/event-stream";
             Response.Headers.CacheControl = "no-cache";

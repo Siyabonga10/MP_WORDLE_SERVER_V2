@@ -28,7 +28,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
                 return Conflict(result.OutcomeMsg);
             _playerService.AddJWTToPlayer(result.NewPlayer, Response);
 
-            return CreatedAtAction(nameof(CreateAccount), result.NewPlayer);
+            return Ok("Account created");
         }
 
         [HttpPost("login")]

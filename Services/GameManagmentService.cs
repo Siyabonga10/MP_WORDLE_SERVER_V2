@@ -5,7 +5,6 @@ namespace MP_WORDLE_SERVER_V2.Services
     public class GameManagementService
     {
         private readonly List<Game> ActiveGames = [];
-        public string LastError = "";
         public Game CreateGame()
         {
             var newGame = new Game(Guid.NewGuid());
@@ -49,21 +48,12 @@ namespace MP_WORDLE_SERVER_V2.Services
                 Guid PlayerGUID = new(playerGUID);
 
                 var targetGame = ActiveGames.FirstOrDefault(game => game.ShortId == gameGUID);
-                LastError += "Here";
                 if (targetGame == null)
                     return false;
-                LastError += "There";
                 var playerInGame = targetGame.GetAllPlayers().Any(playerGuid => playerGuid == PlayerGUID);
 
                 if (targetGame.PlayerConnections.ContainsKey(PlayerGUID.ToString()) || !playerInGame)
-                {
-                    LastError += targetGame.PlayerConnections.ContainsKey(PlayerGUID.ToString()) ? "DuplicateConn\n": "UniqueConn\n";
-                    LastError += $"Player ID {PlayerGUID.ToString()}\n";
-                    LastError += $"Player ID {PlayerGUID.ToString().ToUpper()}\n";
-                    foreach (var entry in targetGame.PlayerConnections)
-                        LastError += $"{entry.Key}\n";
                     return false;
-                }
                 else
                     targetGame.PlayerConnections.Add(playerGUID, playerWriter);
 
