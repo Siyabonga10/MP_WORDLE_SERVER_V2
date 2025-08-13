@@ -63,7 +63,7 @@ namespace MP_WORDLE_SERVER_V2.Services
             return res;
         }
 
-        public async Task SendToAllExcept(string gameID, string playerGUID, string type, string content)
+        public async Task SendToAllExcept(string gameID, string playerGUID, string content, string type)
         {
             var target_game = ActiveGames.FirstOrDefault(game => game.ShortId == gameID);
             if (target_game == null)
