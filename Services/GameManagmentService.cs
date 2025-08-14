@@ -74,10 +74,13 @@ namespace MP_WORDLE_SERVER_V2.Services
 
         public async Task SendPlayersAlreadyInGame(string targetPlauerGuid, string gameID, string username, string type)
         {
+            Guid currentPlayerGuid = new(targetPlauerGuid);
             var target_game = ActiveGames.FirstOrDefault(game => game.ShortId == gameID);
             if (target_game == null)
                 return;
 
+            if (target_game.HostId == currentPlayerGuid)
+                return;
             var player_usernames = target_game.GetPlayerUsernames().Except([username]);
             var payload = string.Join("\n", player_usernames);
             
