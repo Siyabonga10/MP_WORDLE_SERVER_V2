@@ -72,7 +72,7 @@ namespace MP_WORDLE_SERVER_V2.Models
             var target_player = PlayerConnections.FirstOrDefault(playerConn => playerConn.Key == playerGUID);
             if (target_player.Value == null)
                 return;
-            var data = $"event: {type}\ndata:{content}\n";
+            var data = $"event: {type}\ndata:{content}\n\n";
             await target_player.Value.WriteLineAsync(data);
             await target_player.Value.FlushAsync();
         }
