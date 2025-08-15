@@ -36,17 +36,18 @@ namespace MP_WORDLE_SERVER_V2.Controllers
         }
 
         [HttpGet("{gameID}")]
-        public async Task<IActionResult> SubscribeToGameUpdates(string gameID)
+        public async Task SubscribeToGameUpdates(string gameID)
         {
-            var playerGuid = User.FindFirst("jti")?.Value!;
-            var writer = new StreamWriter(Response.Body) { AutoFlush = true };
-            var playerAdded = await _GameService.AddPlayerToGameStreamAsync(gameID, playerGuid, writer);
-            if (!playerAdded)
-                return Unauthorized("Could not subscribe to game events.");
+            Response.Headers["Content-Type"] = "text/event-stream";
+            Response.Headers["Cache-Control"] = "no-cache";
+            Response.Headers["Connection"] = "keep-alive";
+            Response.Headers["X-Accel-Buffering"] = "no"; // Disable buffering in proxies
+            Response.Headers["Content-Encoding"] = "identity"; // Disable compression
 
-            Response.Headers.ContentType = "text/event-stream";
-            Response.Headers.CacheControl = "no-cache";
-            Response.Headers.Connection = "keep-alive";
+            var playerGuid = User.FindFirst("jti")?.Value!;
+            var playerAdded = await _GameService.AddPlayerToGameStreamAsync(gameID, playerGuid, new StreamWriter(Response.Body));
+            if (!playerAdded)
+                return;
 
             var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
             await _GameService.SendToAllExcept(gameID, playerGuid, username, EventTypes.PlayerJoined);
@@ -55,7 +56,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             {
                 await Task.Delay(1000);
             }
-            return new JsonResult("Game stream closed");
+            return;
         }
 
         [HttpPost("{gameID}/start")]

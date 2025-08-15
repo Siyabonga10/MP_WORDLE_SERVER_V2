@@ -13,10 +13,6 @@ builder.Services.AddDbContextFactory<GameCache>(
     ServiceLifetime.Singleton
 );
 
-builder.Host.UseSerilog((context, configuration) =>
-    configuration.ReadFrom.Configuration(context.Configuration)
-);
-
 var conn_string = builder.Configuration.GetConnectionString("DefaultConnection");
 
 if (builder.Environment.IsProduction())
@@ -71,6 +67,5 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.MapControllers();
-app.UseSerilogRequestLogging();
 
 app.Run();
