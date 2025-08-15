@@ -56,12 +56,12 @@ namespace MP_WORDLE_SERVER_V2.Models
 
         public async Task SendToAllExcept(string playerGUID, string type, string content)
         {
-            var data = $"event: {type}\ndata:{content}\n";
+            var data = $"event: {type}\r\ndata:\r\n{content}\r\n\r\n";
             foreach (var playerConn in PlayerConnections)
             {
                 if (playerConn.Key != playerGUID)
                 {
-                    await playerConn.Value.WriteLineAsync(data);
+                    await playerConn.Value.WriteAsync(data);
                     await playerConn.Value.FlushAsync();
                 }
             }
@@ -72,17 +72,17 @@ namespace MP_WORDLE_SERVER_V2.Models
             var target_player = PlayerConnections.FirstOrDefault(playerConn => playerConn.Key == playerGUID);
             if (target_player.Value == null)
                 return;
-            var data = $"event: {type}\ndata:{content}\n";
-            await target_player.Value.WriteLineAsync(data);
+            var data = $"event: {type}\r\ndata:\r\n{content}\r\n\r\n";
+            await target_player.Value.WriteAsync(data);
             await target_player.Value.FlushAsync();
         }
 
         public async Task SendToAll(string type, string content)
         {
-            var data = $"event: {type}\ndata:{content}\n";
+            var data = $"event: {type}\r\ndata:\r\n{content}\r\n\r\n";
             foreach (var playerConn in PlayerConnections)
             {
-                await playerConn.Value.WriteLineAsync(data);
+                await playerConn.Value.WriteAsync(data);
                 await playerConn.Value.FlushAsync();
             }
         }

@@ -82,7 +82,7 @@ namespace MP_WORDLE_SERVER_V2.Services
             if (target_game.HostId == currentPlayerGuid)
                 return;
             var player_usernames = target_game.GetPlayerUsernames().Except([username]);
-            var payload = string.Join("\n", player_usernames);
+            var payload = string.Join("\r\n", player_usernames);
             
             await target_game.SendPlayersAlreadyInGame(targetPlauerGuid, type, payload);
         }
