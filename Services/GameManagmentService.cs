@@ -82,9 +82,8 @@ namespace MP_WORDLE_SERVER_V2.Services
             if (target_game.HostId == currentPlayerGuid)
                 return;
             var player_usernames = target_game.GetPlayerUsernames().Except([username]);
-            var payload = string.Join("\r\n", player_usernames);
             
-            await target_game.SendPlayersAlreadyInGame(targetPlauerGuid, type, payload);
+            await target_game.SendPlayersAlreadyInGame(targetPlauerGuid, type, player_usernames);
         }
 
         public bool StartGame(string playerID, string gameID)
@@ -107,7 +106,7 @@ namespace MP_WORDLE_SERVER_V2.Services
             var target_game = ActiveGames.FirstOrDefault(game => game.ShortId == gameID);
             if (target_game == null)
                 return;
-            await target_game.SendToAll(eventType, content);
+            await target_game.SendToAll(eventType, new List<string>());
         }
     }
 }

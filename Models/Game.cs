@@ -56,7 +56,7 @@ namespace MP_WORDLE_SERVER_V2.Models
 
         public async Task SendToAllExcept(string playerGUID, string type, string content)
         {
-            var data = $"event: {type}\r\ndata:\r\n{content}\r\n\r\n";
+            var data = $"event: {type}\r\ndata: {content}\r\n\r\n";
             foreach (var playerConn in PlayerConnections)
             {
                 if (playerConn.Key != playerGUID)
@@ -67,19 +67,26 @@ namespace MP_WORDLE_SERVER_V2.Models
             }
         }
 
-        public async Task SendPlayersAlreadyInGame(string playerGUID, string type, string content)
+        public async Task SendPlayersAlreadyInGame(string playerGUID, string type, IEnumerable<string> usernames)
         {
             var target_player = PlayerConnections.FirstOrDefault(playerConn => playerConn.Key == playerGUID);
             if (target_player.Value == null)
                 return;
-            var data = $"event: {type}\r\ndata:\r\n{content}\r\n\r\n";
+            var data = $"event: {type}\r\n";
+            foreach (var username in usernames)
+                data += $"data: {username}\r\n";
+
+            data += "\r\n";
             await target_player.Value.WriteAsync(data);
             await target_player.Value.FlushAsync();
         }
 
-        public async Task SendToAll(string type, string content)
+        public async Task SendToAll(string type, IEnumerable<string> DataStream)
         {
-            var data = $"event: {type}\r\ndata:\r\n{content}\r\n\r\n";
+            var data = $"event: {type}\r\n";
+            foreach (var line in DataStream)
+                data += $"data: {line}\r\n";
+            data += "\r\n";
             foreach (var playerConn in PlayerConnections)
             {
                 await playerConn.Value.WriteAsync(data);
