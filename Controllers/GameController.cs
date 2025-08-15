@@ -39,7 +39,8 @@ namespace MP_WORDLE_SERVER_V2.Controllers
         public async Task<IActionResult> SubscribeToGameUpdates(string gameID)
         {
             var playerGuid = User.FindFirst("jti")?.Value!;
-            var playerAdded = await _GameService.AddPlayerToGameStreamAsync(gameID, playerGuid, new StreamWriter(Response.Body));
+            var writer = new StreamWriter(Response.Body) { AutoFlush = true };
+            var playerAdded = await _GameService.AddPlayerToGameStreamAsync(gameID, playerGuid, writer);
             if (!playerAdded)
                 return Unauthorized("Could not subscribe to game events.");
 
