@@ -66,7 +66,7 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             if (!_GameService.StartGame(playerGuid, gameID))
                 return BadRequest("Could not start game");
 
-            var words = _WordManager.GetRandomWords(5);
+            var words = _WordManager.GetRandomWords(10);
             var words_payload = string.Join("\n", words);
             await _GameService.SendToAll(gameID, EventTypes.StartGame, words_payload);
 
