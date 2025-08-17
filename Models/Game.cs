@@ -81,12 +81,10 @@ namespace MP_WORDLE_SERVER_V2.Models
             await target_player.Value.FlushAsync();
         }
 
-        public async Task SendToAll(string type, IEnumerable<string> DataStream)
+        public async Task SendToAll(string type, string content)
         {
-            var data = $"event: {type}\r\n";
-            foreach (var line in DataStream)
-                data += $"data: {line}\r\n";
-            data += "\r\n";
+            var data = $"event: {type}\r\n{content}\r\n\r\n";
+        
             foreach (var playerConn in PlayerConnections)
             {
                 await playerConn.Value.WriteAsync(data);

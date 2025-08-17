@@ -106,7 +106,7 @@ namespace MP_WORDLE_SERVER_V2.Services
             var target_game = ActiveGames.FirstOrDefault(game => game.ShortId == gameID);
             if (target_game == null)
                 return;
-            await target_game.SendToAll(eventType, new List<string>());
+            await target_game.SendToAll(eventType, content);
         }
     }
 }

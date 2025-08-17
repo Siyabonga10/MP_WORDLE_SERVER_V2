@@ -11,6 +11,11 @@ namespace MP_WORDLE_SERVER_V2.Services
     {
         private static int MAX_WORDS = 20;
         private static List<string> allWords = [];
+        private readonly IWebHostEnvironment _environment;
+        public TestWordManager(IWebHostEnvironment env)
+        {
+            _environment = env;
+        }
         public async Task<List<string>> GetRandomWords(int count)
         {
             if (count > MAX_WORDS)
@@ -18,7 +23,8 @@ namespace MP_WORDLE_SERVER_V2.Services
 
             if (allWords.Count == 0)
             {
-                var reader = new StreamReader("words.txt");
+                var filePath = Path.Combine(_environment.ContentRootPath, "res", "words", "words.txt");
+                var reader = new StreamReader(filePath);
                 string? word;
                 while ((word = await reader.ReadLineAsync()) != null)
                 {
