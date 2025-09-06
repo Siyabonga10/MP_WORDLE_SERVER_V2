@@ -29,6 +29,7 @@ namespace MP_WORDLE_SERVER_V2.Models
 
         // Result managment for post game
         private Dictionary<string, int> results = [];
+        private CancellationTokenSource _cts = new CancellationTokenSource();
 
         public ReadOnlyCollection<Guid> GetAllPlayers()
         {
@@ -119,13 +120,12 @@ namespace MP_WORDLE_SERVER_V2.Models
         {
             if (results.TryGetValue(username, out int current_score))
                 if (current_score != -1) return false;
-            var added = results[username] =  score;
+            results[username] =  score;
             if (!results.ContainsValue(-1))
             {
                 _ = Task.Run(async () =>
                 {
-                    if (gameTask != null && !gameTask.IsCompleted)
-                        gameTask.Dispose();
+                    _cts.Cancel();
                     State = GameState.COMPLETE;
                     await EndGame();
                 });
@@ -137,10 +137,13 @@ namespace MP_WORDLE_SERVER_V2.Models
             State = GameState.ON_GOING;
             gameTask = Task.Run(async () =>
             {
-                await Task.Delay(TimeSpan.FromMinutes(2.1));
-                if (State == GameState.ON_GOING)
-                    await EndGame();
-            });
+                while (!_cts.IsCancellationRequested)
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(2.1));
+                    if (State == GameState.ON_GOING)
+                        await EndGame();
+                }
+            }, _cts.Token);
         }
     }
 }
