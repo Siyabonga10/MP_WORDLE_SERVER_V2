@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using MP_WORDLE_SERVER_V2.Data;
 using System.Text;
 using MP_WORDLE_SERVER_V2.Models;
-using Microsoft.Identity.Client;
+
 using Microsoft.AspNetCore.Identity;
 
 namespace MP_WORDLE_SERVER_V2.Services
@@ -41,7 +41,7 @@ namespace MP_WORDLE_SERVER_V2.Services
             response.Cookies.Append("jwt_token", new JwtSecurityTokenHandler().WriteToken(token), new CookieOptions
             {
                 HttpOnly = true,  // Cannot be accessed by JavaScript
-                Secure = true,    // HTTPS only
+                Secure = false,    
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.UtcNow.AddMinutes(30)
             });

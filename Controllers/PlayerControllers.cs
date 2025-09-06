@@ -22,7 +22,6 @@ namespace MP_WORDLE_SERVER_V2.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateAccount([FromBody] Player player)
         {
-            _logger.LogInformation("endpoint invoked");
             var result = await _playerService.CreatePlayer(player.Username, player.Password);
             if (result.NewPlayer == null)
                 return Conflict(result.OutcomeMsg);
@@ -34,12 +33,11 @@ namespace MP_WORDLE_SERVER_V2.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Player player)
         {
-            _logger.LogInformation($"Attempit to log in {player.Username}");
             Player? authenticated_player = await _playerService.GetPlayerFromCredentials(player.Username, player.Password);
             if (authenticated_player == null)
                 return Unauthorized("Invalid credentials");
 
-            _playerService.AddJWTToPlayer(player, Response);
+            _playerService.AddJWTToPlayer(authenticated_player, Response);
             return Ok("Login succesful");
         }
 

@@ -49,7 +49,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 {
                     context.Token = context.Request.Cookies["jwt_token"];
                 }
-                return Task.CompletedTask;  
+                return Task.CompletedTask;
             }
         };
     });
@@ -59,11 +59,9 @@ builder.Services.AddScoped<PlayerService>();
 builder.Services.AddSingleton<GameManagementService>();
 builder.Services.AddSingleton<IWordManager, TestWordManager>();
 
-
-builder.Services.AddControllers(); 
+builder.Services.AddControllers();
 
 var app = builder.Build();
-
 app.UseHttpsRedirection();
 app.MapControllers();
 
