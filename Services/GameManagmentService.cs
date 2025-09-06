@@ -82,7 +82,7 @@ namespace MP_WORDLE_SERVER_V2.Services
             if (target_game.HostId == currentPlayerGuid)
                 return;
             var player_usernames = target_game.GetPlayerUsernames().Except([username]);
-            
+
             await target_game.SendPlayersAlreadyInGame(targetPlauerGuid, type, player_usernames);
         }
 
@@ -97,7 +97,7 @@ namespace MP_WORDLE_SERVER_V2.Services
                 return false;
             if (target_game.HostId != playerGUID)
                 return false;
-            target_game.State = GameState.ON_GOING;
+            target_game.StartGame();
             return true;
         }
 
@@ -107,6 +107,18 @@ namespace MP_WORDLE_SERVER_V2.Services
             if (target_game == null)
                 return;
             await target_game.SendToAll(eventType, content);
+        }
+
+        public bool SubmitResult(string username, string gameId, int score)
+        {
+            if (score < 0) return false;
+            var target_game = ActiveGames.FirstOrDefault(game => game.ShortId == gameId);
+            if (target_game == null) return false;
+            if (target_game.State != GameState.ON_GOING)
+                return false;
+            var in_game = target_game.GetPlayerUsernames().Any(_username => _username == username);
+            if (!in_game) return false;
+            return target_game.AddResult(username, score);
         }
     }
 }

@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Authorization;
 using MP_WORDLE_SERVER_V2.Constants;
 using Microsoft.AspNetCore.Mvc;
@@ -71,6 +69,14 @@ namespace MP_WORDLE_SERVER_V2.Controllers
             await _GameService.SendToAll(gameID, EventTypes.StartGame, words_payload);
 
             return Ok("Game started");
+        }
+        [HttpPost("{gameId}/results")]
+        public IActionResult SubmitResult(string gameId, [FromBody] int score)
+        {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
+            if (_GameService.SubmitResult(username, gameId, score))
+                return NoContent();
+            return BadRequest("Could not submit result");
         }
     }
 }

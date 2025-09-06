@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MP_WORDLE_SERVER_V2.Constants;
 
 namespace MP_WORDLE_SERVER_V2.Models
 {
@@ -24,6 +25,10 @@ namespace MP_WORDLE_SERVER_V2.Models
         public GameState State { get; set; } = GameState.WAITING_FOR_PLAYERS;
         public Guid? HostId { get; set; } = Guid.Empty;
         public Guid? WinnerID { get; set; } = Guid.Empty;
+        private Task? gameTask;
+
+        // Result managment for post game
+        private Dictionary<string, int> results = [];
 
         public ReadOnlyCollection<Guid> GetAllPlayers()
         {
@@ -44,6 +49,7 @@ namespace MP_WORDLE_SERVER_V2.Models
                 return true; // Avoid adding the same player multiple times, but technically they are in the list
             PlayerIDs.Add(newPlayer);
             playerUsernames.Add(username);
+            results.Add(username, -1);
             return true;
         }
         public bool RemovePlayer(Guid playerId)
@@ -84,12 +90,57 @@ namespace MP_WORDLE_SERVER_V2.Models
         public async Task SendToAll(string type, string content)
         {
             var data = $"event: {type}\r\n{content}\r\n\r\n";
-        
+
             foreach (var playerConn in PlayerConnections)
             {
                 await playerConn.Value.WriteAsync(data);
                 await playerConn.Value.FlushAsync();
             }
+        }
+
+        public async Task EndGame()
+        {
+            State = GameState.COMPLETE;
+            var data = $"event: {EventTypes.WinnerUpdate}\r\n";
+
+            foreach (var result in results)
+                data += $"{result.Key}:{result.Value}\r\n";
+
+            data += "\r\n";
+            foreach (var playerConn in PlayerConnections)
+            {
+                await playerConn.Value.WriteAsync(data);
+                await playerConn.Value.FlushAsync();
+            }
+        }
+
+
+        public bool AddResult(string username, int score)
+        {
+            if (results.TryGetValue(username, out int current_score))
+                if (current_score != -1) return false;
+            var added = results[username] =  score;
+            if (!results.ContainsValue(-1))
+            {
+                _ = Task.Run(async () =>
+                {
+                    if (gameTask != null && !gameTask.IsCompleted)
+                        gameTask.Dispose();
+                    State = GameState.COMPLETE;
+                    await EndGame();
+                });
+            }
+            return true;
+        }
+        public void StartGame()
+        {
+            State = GameState.ON_GOING;
+            gameTask = Task.Run(async () =>
+            {
+                await Task.Delay(TimeSpan.FromMinutes(2.1));
+                if (State == GameState.ON_GOING)
+                    await EndGame();
+            });
         }
     }
 }
