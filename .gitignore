@@ -4,3 +4,5 @@ bin/*
 *.db-*
 .env
 logs/*
+appsettings.json
+appsettings.Development.json

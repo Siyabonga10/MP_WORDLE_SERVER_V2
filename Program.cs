@@ -4,8 +4,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MP_WORDLE_SERVER_V2.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, config) =>
+    config.ReadFrom.Configuration(context.Configuration)
+          .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Minute));
 
 builder.Services.AddDbContextFactory<GameCache>(
     options => options.UseInMemoryDatabase("temp"),
@@ -58,10 +63,12 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<PlayerService>();
 builder.Services.AddSingleton<GameManagementService>();
 builder.Services.AddSingleton<IWordManager, TestWordManager>();
+builder.Services.AddHostedService<LogUploadService>();
 
 builder.Services.AddControllers();
 
 var app = builder.Build();
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.MapControllers();
 
