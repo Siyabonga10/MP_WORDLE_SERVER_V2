@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, config) =>
     config.ReadFrom.Configuration(context.Configuration)
-          .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Minute));
+          .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Hour));
 
 builder.Services.AddDbContextFactory<GameCache>(
     options => options.UseInMemoryDatabase("temp"),

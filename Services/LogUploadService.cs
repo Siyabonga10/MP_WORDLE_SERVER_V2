@@ -16,7 +16,7 @@ public class LogUploadService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             await UploadCompletedLogs();
-            await Task.Delay(TimeSpan.FromSeconds(45), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
         }
     }
 
