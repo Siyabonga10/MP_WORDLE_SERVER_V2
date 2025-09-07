@@ -16,7 +16,7 @@ public class LogUploadService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             await UploadCompletedLogs();
-            await Task.Delay(TimeSpan.FromSeconds(120), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(45), stoppingToken);
         }
     }
 
@@ -27,11 +27,9 @@ public class LogUploadService : BackgroundService
         var logFiles = Directory.GetFiles("logs", "*.log")
             .Where(f => !IsCurrentLogFile(f)).ToArray();
 
-        _logger.LogWarning("Found {Count} completed log files to upload", logFiles.Length);
 
         if (!logFiles.Any())
         {
-            _logger.LogWarning("No completed log files found");
             return;
         }
 
@@ -39,15 +37,9 @@ public class LogUploadService : BackgroundService
 
         foreach (var file in logFiles)
         {
-            _logger.LogWarning("Uploading file: {FileName}", Path.GetFileName(file));
             
             await supabase.Storage.From("app-logs").Upload(file, Path.GetFileName(file));
-            
-            _logger.LogWarning("Successfully uploaded: {FileName}", Path.GetFileName(file));
-            
             File.Delete(file);
-            
-            _logger.LogWarning("Deleted local file: {FileName}", Path.GetFileName(file));
         }
     }
     catch (Exception ex)
